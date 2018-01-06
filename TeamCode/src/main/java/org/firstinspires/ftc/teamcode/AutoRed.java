@@ -152,7 +152,7 @@ public class AutoRed extends LinearOpMode {
 
     }
 
-    public int detectcolor() {
+    public void detectcolor() {
         if (color_sensor.blue() - color_sensor.red() > colorThreshhold) {
             moveForward(0.5f);
         }
