@@ -31,15 +31,21 @@ public class TankDrive extends OpMode
     private DcMotor left_back;
     private DcMotor right_back;
     private DcMotor lift;
-    private boolean x = true;
-    private boolean y = true;
+    private static boolean x = true;
+    private static boolean y = true;
+    private static boolean changeSpeed = true;
+    private static double[] speeds = new double[]{0.25, 0.5, 1};
+    private static int index = 2;
+    private static double speed = speeds[index];
 
-    private boolean reset = true;
+    private static boolean reset = true;
     private Servo ClawL1;
     private Servo ClawR1;
     private Servo ClawL2;
     private Servo ClawR2;
     private ColorSensor color_sensor;
+    private Servo Color1;
+    private Servo Color2;
     public static double threshold = 0.2;
     @Override
     public void init()
@@ -50,6 +56,8 @@ public class TankDrive extends OpMode
         ClawL2 = hardwareMap.servo.get("l2");
         ClawR1 = hardwareMap.servo.get("r1");
         ClawR2 = hardwareMap.servo.get("r2");
+        Color1 = hardwareMap.servo.get("c1");
+        Color2 = hardwareMap.servo.get("c2");
         left_front = hardwareMap.dcMotor.get("left_front");
         right_front = hardwareMap.dcMotor.get("right_front");
         lift = hardwareMap.dcMotor.get("lift");
@@ -61,7 +69,7 @@ public class TankDrive extends OpMode
 
         control3 = hardwareMap.dcMotorController.get("lift_controller");
 
-        //color_sensor = hardwareMap.colorSensor.get("color");
+        color_sensor = hardwareMap.colorSensor.get("color");
         //color_sensor.enableLed(true);
 
     }
@@ -90,7 +98,23 @@ public class TankDrive extends OpMode
         //int blue = color_sensor.blue();
 
         //log("SayBlue", Integer.toString(blue));
-
+        if(changeSpeed&&gamepad1.dpad_up)
+        {
+            changeSpeed = false;
+            index = Math.min(index+1, speeds.length-1);
+            speed = speeds[index];
+        }
+        else if(changeSpeed&&gamepad1.dpad_down)
+        {
+            changeSpeed = false;
+            index = Math.max(index-1, 0);
+            speed = speeds[index];
+        }
+        else if(!changeSpeed&&!gamepad1.dpad_up&&!gamepad1.dpad_down)
+        {
+            changeSpeed = true;
+        }
+        log("speed", Double.toString(speed));
 
          /*
           *  Checks if the y value is forward or backwards.
@@ -110,8 +134,8 @@ public class TankDrive extends OpMode
             lift.setPower(0);
         }
         if(Math.abs(gamepad1.left_stick_y) > threshold){
-            left_front.setPower(Math.pow(gamepad1.left_stick_y, 3));
-            left_back.setPower(Math.pow(gamepad1.left_stick_y, 3));
+            left_front.setPower(speed*Math.pow(gamepad1.left_stick_y, 3));
+            left_back.setPower(speed*Math.pow(gamepad1.left_stick_y, 3));
             log("Left Stick Y", Float.toString(gamepad1.left_stick_y));
         }
 
@@ -121,8 +145,8 @@ public class TankDrive extends OpMode
           *
           */
         if(Math.abs(gamepad1.right_stick_y) > threshold){
-            right_front.setPower(Math.pow(-gamepad1.right_stick_y, 3));
-            right_back.setPower(Math.pow(-gamepad1.right_stick_y, 3));
+            right_front.setPower(speed*Math.pow(-gamepad1.right_stick_y, 3));
+            right_back.setPower(speed*Math.pow(-gamepad1.right_stick_y, 3));
             log("Right Stick Y", Float.toString(-gamepad1.right_stick_y));
 
         }
@@ -161,10 +185,10 @@ public class TankDrive extends OpMode
             log("x", Boolean.toString(x));
             log("y", Boolean.toString(y));
             log("reset", Boolean.toString(reset));
-            ClawL1.setPosition(0.6);
-            ClawR1.setPosition(0.4);
-            ClawL2.setPosition(0.6);
-            ClawR2.setPosition(0.4);
+            ClawL1.setPosition(0.65);
+            ClawR1.setPosition(0.35);
+            ClawL2.setPosition(0.65);
+            ClawR2.setPosition(0.35);
         }
         else if(gamepad2.x && x)
         {
@@ -175,10 +199,10 @@ public class TankDrive extends OpMode
             log("x", Boolean.toString(x));
             log("y", Boolean.toString(y));
             log("reset", Boolean.toString(reset));
-            ClawL1.setPosition(0.75);
-            ClawR1.setPosition(0.25);
-            ClawL2.setPosition(0.75);
-            ClawR2.setPosition(0.25);
+            ClawL1.setPosition(0.8);
+            ClawR1.setPosition(0.2);
+            ClawL2.setPosition(0.8);
+            ClawR2.setPosition(0.2);
         }
         else if(gamepad2.b && reset)
         {
@@ -199,5 +223,6 @@ public class TankDrive extends OpMode
 
 
     }
+
 }
 
